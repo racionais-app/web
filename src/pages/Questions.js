@@ -25,7 +25,7 @@ const Questions = () => {
   const history = useHistory();
   const classes = useStyles();
 
-  const moduleId = 'FsIN1B3G0f7GYqJCshZ1';
+  const moduleId = 'Du3VzTaIQn1PuBeGM9ZC';
   const [questions, setQuestions] = React.useState([]);
 
   const handleQuestions = (doc) => {
