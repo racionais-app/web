@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextField, Button } from '@material-ui/core';
 import firebase from 'firebase';
+import history from '../services/history';
 
 const Login = () => {
     const [email, setEmail] = React.useState('');
@@ -8,17 +9,19 @@ const Login = () => {
 
     function handleSubmit(event) {
         event.preventDefault();
-        console.log('Email:', email, 'Password: ', password);
-        firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          // Signed in
-          var user = userCredential.user;
-          console.log({user})
+
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+          firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+              history.push("/");
+          }
+          )
         })
         .catch((error) => {
+          // Handle Errors here.
           var errorCode = error.code;
           var errorMessage = error.message;
-          console.log({errorMessage})
+          console.log({errorMessage});
         });
     }
 

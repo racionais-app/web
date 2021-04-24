@@ -24,7 +24,7 @@ const useStyles = makeStyles({
 const Questions = () => {
   const history = useHistory();
   const classes = useStyles();
-
+  console.log("chamou")
   const moduleId = 'Du3VzTaIQn1PuBeGM9ZC';
   const [questions, setQuestions] = React.useState([]);
 

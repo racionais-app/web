@@ -7,10 +7,12 @@ import history from '../services/history';
 
 const Modules = () => {
   const [modules, setModules] = React.useState([]);
-
+  console.log("chamou a pagina")
   const handleModules = ({ docs }) => {
+    console.log("chamou")
     const data = docs.map(doc => ({ id: doc.id, ...doc.data() }));
     setModules(data);
+    console.log({docs})
   }
 
   const onClick = (mid) => {
@@ -19,6 +21,7 @@ const Modules = () => {
 
   React.useEffect(() => {
     const db = firebase.firestore();
+    console.log({db})
     const subscribe = db.collection('modules')
       .onSnapshot(handleModules);
     
@@ -26,14 +29,17 @@ const Modules = () => {
   }, []);
 
   return modules.map(({ id, name }) => (
-    <Button
+    <div>
+      aaassad<br/> jasjsajaj
+    {/* <Button
       key={id}
       color='primary'
       variant='contained'
       onClick={() => onClick(id)}
     >
       {name}
-    </Button>
+    </Button> */}
+    </div>
   ));
 }
 
