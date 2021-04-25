@@ -18,13 +18,15 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import Modal from '@material-ui/core/Modal';
+import TextField from '@material-ui/core/TextField';
 
 const useStyles = makeStyles((theme) => ({
   table: {
     maxWidth: 650,
   },
   root: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -32,7 +34,30 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  }
 }));
+
+function rand() {
+  return Math.round(Math.random() * 20) - 10;
+}
+
+function getModalStyle() {
+  const top = 50 + rand();
+  const left = 50 + rand();
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
 
 const Questions = () => {
   const history = useHistory();
@@ -40,6 +65,10 @@ const Questions = () => {
   let { id } = useParams();
   const moduleId = id;
   const [questions, setQuestions] = React.useState([]);
+  const [modalStyle] = React.useState(getModalStyle);
+  const [openModalVideo, setOpenModalVideo] = React.useState(false);
+  const [videoName, setVideoName] = React.useState('');
+  const [videoURL, setVideoURL] = React.useState('');
 
   const handleQuestions = (doc) => {
     const data = doc.data();
@@ -70,6 +99,76 @@ const Questions = () => {
       console.log({ error });
     });
   }
+
+  const handleOpenModalVideo = () => {
+    setOpenModalVideo(true);
+  };
+
+  const handleCloseModalVideo = () => {
+    setOpenModalVideo(false);
+  };
+
+  function extractVideoIdFromYouTubeUrl(url) {
+    let id = url.substring(url.lastIndexOf("v=")+2,url.length);
+    return id;
+  }
+  
+  function handleSubmitVideo(event) {
+    event.preventDefault();
+    const db = firebase.firestore();
+    const docId = Date.now();
+    const idVideoURL = extractVideoIdFromYouTubeUrl(videoURL);
+
+    db.collection("modules").doc(moduleId).collection('items').doc(docId.toString()).set({
+      name: videoName,
+      type: "video",
+      videoId: idVideoURL
+    })
+    .then(() => {
+      console.log("Document successfully written!");
+    })
+    .catch((error) => {
+      console.error("Error writing document: ", error);
+    });
+  }
+
+  const body = (
+    <div style={modalStyle} className={classes.paper}>
+      <h2 id="simple-modal-title">Submeter Vídeo</h2>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+      <form noValidate autoComplete="off" onSubmit={handleSubmitVideo}>
+                <TextField
+                    id="standard-basic"
+                    label="Nome"
+                    style={{width: 300}}
+                    value={videoName}
+                    onInput={e => setVideoName(e.target.value)}
+                />
+                <br /><br />
+                <TextField
+                    id="standard-basic"
+                    label="URL"
+                    style={{width: 300}}
+                    value={videoURL}
+                    onInput={e => setVideoURL(e.target.value)}
+                />
+                <br /><br />
+                <Button
+                    key={1}
+                    color='primary'
+                    variant='contained'
+                    type="submit"
+                >
+                    Enviar
+                </Button>
+            </form>
+            </div>
+      {/* <p id="simple-modal-description">
+        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+      </p> */}
+
+    </div>
+  );
 
   React.useEffect(() => {
     const db = firebase.firestore();
@@ -128,6 +227,37 @@ const Questions = () => {
           </TableBody>
         </Table>
       </TableContainer>
+    </div>
+    <br/>
+    <div>
+    <Modal
+        open={openModalVideo}
+        onClose={handleCloseModalVideo}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+      >
+        {body}
+      </Modal>
+    </div>
+    <div style={{textAlign: "center"}}>
+      <Button
+            key='video'
+            color='primary'
+            variant='contained'
+            onClick={handleOpenModalVideo}
+            style={{width: "20vw", marginRight: 10}}
+            >
+            Submeter Vídeo
+        </Button>
+        <Button
+            key='survey'
+            color='primary'
+            variant='contained'
+            onClick={() => console.log("au")}
+            style={{width: "20vw"}}
+            >
+            Submeter Questionário
+        </Button>
     </div>
     </div>
   );
