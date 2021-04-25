@@ -76,10 +76,6 @@ const Questions = () => {
     setQuestions(data.questions ?? []);
   }
 
-  const handleEdit = (qid) => {
-    history.push(`/question/${ qid }`);
-  }
-
   const handleDelete = async(qid) => {
     const db = firebase.firestore();
     const ref = db.collection('modules').doc(moduleId);
@@ -170,6 +166,10 @@ const Questions = () => {
     </div>
   );
 
+  function handleSubmitSurvey(qid) {
+    history.push(`/question/${ moduleId }/${ qid }`);
+  }
+
   React.useEffect(() => {
     const db = firebase.firestore();
     let arrQuestions = [];
@@ -213,7 +213,7 @@ const Questions = () => {
                 <TableCell component='th' scope='row'>{question.data.name}</TableCell>
                 <TableCell align='right'>{question.data.type}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleEdit(question.data.name)}>
+                  <IconButton onClick={() => handleSubmitSurvey(question.id)}>
                     <EditIcon />
                   </IconButton>
                 </TableCell>
@@ -248,15 +248,6 @@ const Questions = () => {
             style={{width: "20vw", marginRight: 10}}
             >
             Submeter Vídeo
-        </Button>
-        <Button
-            key='survey'
-            color='primary'
-            variant='contained'
-            onClick={() => console.log("au")}
-            style={{width: "20vw"}}
-            >
-            Submeter Questionário
         </Button>
     </div>
     </div>

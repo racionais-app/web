@@ -22,7 +22,7 @@ const Routes = () => {
       <Route path='/' exact component={Modules}/>
       <Route path='/:id/questions' component={Questions}>
       </Route>
-      <Route path='/question/:id' component={Question}/> 
+      <Route path='/question/:mid/:id' component={Question}/> 
       <Route path='/signin' component={Login} />
     </Switch>
   )
