@@ -67,7 +67,6 @@ const Question = () => {
   const moduleId = mid;
 
   const [items, setItems] = React.useState([]);
-  const [adding, setAdding] = React.useState(false);
 
   const [text1, setText1] = React.useState('');
   const [text2, setText2] = React.useState('');

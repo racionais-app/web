@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     position: 'absolute',
-    width: 400,
+    width: 650,
     backgroundColor: theme.palette.background.paper,
     border: '2px solid #000',
     boxShadow: theme.shadows[5],
@@ -69,12 +69,14 @@ const Questions = () => {
   const [openModalVideo, setOpenModalVideo] = React.useState(false);
   const [videoName, setVideoName] = React.useState('');
   const [videoURL, setVideoURL] = React.useState('');
-
-  const handleQuestions = (doc) => {
-    const data = doc.data();
-    console.log(data.items)
-    setQuestions(data.questions ?? []);
-  }
+  const [text1, setText1] = React.useState('');
+  const [text2, setText2] = React.useState('');
+  const [text3, setText3] = React.useState('');
+  const [imgURL, setImgURL] = React.useState('');
+  const [answer, setAnswer] = React.useState('');
+  const [placeholderAnswer, setPlaceholderAnswer] = React.useState('');
+  const [openModal, setOpenModal] = React.useState(false);
+  const [content, setContent] = React.useState('');
 
   const handleDelete = async(qid) => {
     const db = firebase.firestore();
@@ -104,6 +106,14 @@ const Questions = () => {
     setOpenModalVideo(false);
   };
 
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   function extractVideoIdFromYouTubeUrl(url) {
     let id = url.substring(url.lastIndexOf("v=")+2,url.length);
     return id;
@@ -122,6 +132,55 @@ const Questions = () => {
     })
     .then(() => {
       console.log("Document successfully written!");
+    })
+    .catch((error) => {
+      console.error("Error writing document: ", error);
+    });
+  }
+
+  function handleSubmitQuestion(event) {
+    event.preventDefault();
+    const db = firebase.firestore();
+    const docId = Date.now();
+    const surveyId = Date.now() + 9;
+
+    db.collection("modules").doc(moduleId).collection('items').doc(surveyId.toString()).set({
+      name: content,
+      type: "survey",
+    })
+    .then(() => {
+      console.log("Document successfully written!");
+      db.collection("modules").doc(moduleId).collection('items').doc(surveyId.toString()).collection('questions').doc(docId.toString()).set({
+        0: {
+          id: "0",
+          text: text1,
+          type: "text"
+        },
+        1: {
+          id: "1",
+          size: 240,
+          type: "image",
+          url: imgURL
+        },
+        2: {
+          id: "2",
+          text: text2,
+          type: "text"
+        },
+        3: {
+          answer: answer,
+          id: "3",
+          label: text3,
+          placeholder: placeholderAnswer,
+          type: "input"
+        }
+      })
+        .then(() => {
+          console.log("Document successfully written!");
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
     })
     .catch((error) => {
       console.error("Error writing document: ", error);
@@ -163,6 +222,79 @@ const Questions = () => {
         Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
       </p> */}
 
+    </div>
+  );
+
+  const bodyQuestion = (
+    <div style={modalStyle} className={classes.paper}>
+      <h2 id="simple-modal-title">Submeter Questão</h2>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+        <form noValidate autoComplete="off" onSubmit={handleSubmitQuestion}>
+          <TextField
+            id="standard-basic"
+            label="Conteúdo abordado"
+            style={{ width: 500 }}
+            value={content}
+            onInput={e => setContent(e.target.value)}
+          />
+          <TextField
+            id="standard-basic"
+            label="Texto antes da imagem"
+            style={{ width: 500 }}
+            value={text1}
+            onInput={e => setText1(e.target.value)}
+          />
+          <br />
+          <TextField
+            id="standard-basic"
+            label="URL da imagem do exercício"
+            style={{ width: 500 }}
+            value={imgURL}
+            onInput={e => setImgURL(e.target.value)}
+          />
+          <br />
+          <TextField
+            id="standard-basic"
+            label="Texto após a imagem"
+            style={{ width: 500 }}
+            value={text2}
+            onInput={e => setText2(e.target.value)}
+          />
+          <br />
+          <TextField
+            id="standard-basic"
+            label="Texto explicativo sobre campo de resposta"
+            style={{ width: 500 }}
+            value={text3}
+            onInput={e => setText3(e.target.value)}
+          />
+          <br />
+          <TextField
+            id="standard-basic"
+            label="Resposta correta"
+            style={{ width: 500 }}
+            value={answer}
+            onInput={e => setAnswer(e.target.value)}
+          />
+          <br />
+          <TextField
+            id="standard-basic"
+            label="Placeholder do campo da resposta"
+            style={{ width: 500 }}
+            value={placeholderAnswer}
+            onInput={e => setPlaceholderAnswer(e.target.value)}
+          />
+          <br /> <br />
+          <Button
+            key={1}
+            color='primary'
+            variant='contained'
+            type="submit"
+          >
+            Enviar
+          </Button>
+        </form>
+      </div>
     </div>
   );
 
@@ -238,6 +370,14 @@ const Questions = () => {
       >
         {body}
       </Modal>
+      <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            {bodyQuestion}
+      </Modal>
     </div>
     <div style={{textAlign: "center"}}>
       <Button
@@ -249,6 +389,16 @@ const Questions = () => {
             >
             Submeter Vídeo
         </Button>
+        <br/>
+        <Button
+            key='survey'
+            color='primary'
+            variant='contained'
+            onClick={handleOpenModal}
+            style={{width: "20vw", marginRight: 10, marginTop: 10}}
+            >
+            Submeter Questionário
+        </Button> 
     </div>
     </div>
   );
